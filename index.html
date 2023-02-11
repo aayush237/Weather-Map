@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Weather API</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+    <style>
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      const cities = [
+    'London',
+    'Paris',
+    'New York City',
+    'New Delhi',
+    'Berlin',
+    'San Francisco',
+    'Mumbai',
+    'Auckland',
+    'Milan',
+    'Shanghai', 
+    'Seoul',
+    'Sao Paulo',
+    'Bangalore',
+    'Sydney',
+    'Zurich',
+    'Munich',
+    'Los Angeles',
+    'Manchester',
+    'Tokyo',
+    'Kuala Lumpur',
+    'Abu Dhabi',
+    'Dubai',
+    'Boston',
+    'Johannesburg',
+    'Abidjan',
+    'Vancouver',
+    'Buenos Aires',
+    'Bogota',
+    'Rio de Janiero',
+    'Osaka'
+  ];
+
+  const weatherData = [];
+
+const map = L.map("map").setView([51.505, -0.09], 2);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+}).addTo(map);
+
+const getWeatherData = async (city) => {
+  const response = await fetch(
+    `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=875ec4e84b718bef0c8576313cd0013e&units=metric`
+  );
+  return await response.json();
+};
+
+
+const fetchWeatherData = async () => {
+  for (const city of cities) {
+    const data = await getWeatherData(city);
+    weatherData.push(data);
+  }
+};
+
+const addMarker = (data) => {
+  const lat = data.coord.lat;
+  const lon = data.coord.lon;
+  const marker = L.marker([lat, lon]).addTo(map);
+  marker.bindPopup(`
+    <h3>Weather Information</h3>
+    <p>City: ${data.name}</p>
+    <p>Temperature: ${data.main.temp} &#8451;</p>
+    <p>Pressure: ${data.main.pressure} hPa</p>
+    <p>Humidity: ${data.main.humidity} %</p>
+  `);
+};
+
+const showWeatherDataOnMap = (data) => {
+  for (const item of data) {
+    addMarker(item);
+  }
+};
+
+const refreshData = () => {
+  for (const item of weatherData) {
+    item.main.temp += Math.random() * 2 - 1;
+  }
+  localStorage.setItem('weatherData', JSON.stringify(weatherData));
+  showWeatherDataOnMap(weatherData);
+};
+
+// Refresh the data every 10 minutes (600,000 milliseconds)
+setInterval(refreshData, 600000);
+
+// Fetch the data for the first time
+fetchWeatherData().then(() => {
+  localStorage.setItem('weatherData', JSON.stringify(weatherData));
+  showWeatherDataOnMap(weatherData);
+});
+    </script>
+  </body>
+</html>
