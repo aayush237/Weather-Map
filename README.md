@@ -1,1 +1,1 @@
-Unfortunately, I couldn't find a way to hide my API key in the index.html file or a way to shift the script code to my app.js file. Rest assured, the API works fine as you can find in the screenschots I have sent you on Internshala.
+
